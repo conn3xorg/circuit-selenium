@@ -87,11 +87,9 @@ jobs:
         if: matrix.distro == 'ubuntu2404'
         working-directory: examples/local
         run: |
+          # The port change restarts the hub, and the apply waits for the
+          # Grid to report ready, so the plan straight after it is clean.
           conn3x apply -auto-approve -var 'browsers=["chromium","firefox"]' -var grid_port=5555
-          # The port change restarts the hub, and apply returns before the
-          # Grid reports ready. Planning while it is unready makes the ready
-          # step show a re-run, so wait for it first.
-          sudo podman exec circuit-selenium sh -c 'for _ in $(seq 60); do podman exec selenium-hub curl -sf http://127.0.0.1:4444/status | grep -q "\"ready\": *true" && exit 0; sleep 2; done; echo "The Grid did not report ready in time." >&2; exit 1'
           conn3x plan -detailed-exitcode -var 'browsers=["chromium","firefox"]' -var grid_port=5555
           sudo podman exec -e GRID_PORT=5555 -i circuit-selenium sh -s chromium firefox < check.sh
       - name: Clean up

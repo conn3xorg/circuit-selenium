@@ -98,6 +98,13 @@ circuit "selenium" {
         exit 1
       EOT
       unless  = "podman exec selenium-hub curl -sf http://127.0.0.1:4444/status | grep -q '\"ready\": *true'"
+      # Changing the hub's image, listen address or port rewrites its unit,
+      # which restarts it, and the Grid is unready until it comes back. Run
+      # the wait again on that change, or the apply returns before the Grid
+      # is ready and the next plan shows this step again.
+      triggers = {
+        hub = "${local.hub_image} ${var.listen_address}:${var.port}"
+      }
     }
   }
 }

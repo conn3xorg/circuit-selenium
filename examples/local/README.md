@@ -33,8 +33,8 @@ conn3x plan -var grid_port=5555
 podman exec -e GRID_PORT=5555 -i circuit-selenium sh -s chromium < check.sh
 ```
 
-A port change restarts the hub, so wait for the Grid to report ready before `conn3x plan`:
-an unready Grid makes the plan show the ready step re-running.
+A port change restarts the hub, and the apply waits for the Grid to report ready before
+it returns, so the plan straight after it has no changes.
 
 `check.sh` still requires loopback binding and refuses extra published ports. CI runs this
 scenario on Ubuntu after checking the default port.
